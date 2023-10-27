@@ -4,10 +4,9 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import SERVICE_HOMEASSISTANT_RESTART
 from homeassistant.core import DOMAIN as HA_DOMAIN, HomeAssistant
 
-from .const import CONF_COMPONENTS_TO_DISABLE
+from .const import CONF_COMPONENTS_TO_DISABLE, SERVICE_HOMEASSISTANT_RESTART
 from .helpers import (
     backup_original_default_config_manifest,
     load_default_config_manifest,
