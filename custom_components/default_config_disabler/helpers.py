@@ -1,4 +1,5 @@
 """Helper functions for the Default Config Disabler integration."""
+
 from __future__ import annotations
 
 import json

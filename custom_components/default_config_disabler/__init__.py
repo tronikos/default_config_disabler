@@ -1,10 +1,15 @@
 """The Default Config Disabler integration."""
+
 from __future__ import annotations
 
+from datetime import timedelta
 import logging
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import DOMAIN as HA_DOMAIN, HomeAssistant
+from homeassistant.helpers.event import async_track_point_in_time
+import homeassistant.util.dt as dt_util
 
 from .const import CONF_COMPONENTS_TO_DISABLE, SERVICE_HOMEASSISTANT_RESTART
 from .helpers import (
@@ -43,6 +48,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         _LOGGER.warning("Restarting Home Assistant to use the updated default_config")
         await hass.services.async_call(HA_DOMAIN, SERVICE_HOMEASSISTANT_RESTART)
+
+        async def on_started(event):
+            _LOGGER.warning(
+                "HA started. Restarting Home Assistant to use the updated default_config"
+            )
+            await hass.services.async_call(HA_DOMAIN, SERVICE_HOMEASSISTANT_RESTART)
+
+            async def delayed_started(event):
+                _LOGGER.warning(
+                    "HA started a while ago. Restarting Home Assistant to use the updated default_config"
+                )
+                await hass.services.async_call(HA_DOMAIN, SERVICE_HOMEASSISTANT_RESTART)
+
+            for minutes in [1, 2, 4, 8, 16]:
+                async_track_point_in_time(
+                    hass,
+                    delayed_started,
+                    dt_util.now() + timedelta(minutes=minutes),
+                )
+
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, on_started)
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
 

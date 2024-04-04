@@ -1,4 +1,5 @@
 """Constants for the Default Config Disabler integration."""
+
 from typing import Final
 
 DOMAIN: Final = "default_config_disabler"
