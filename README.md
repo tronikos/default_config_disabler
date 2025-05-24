@@ -3,8 +3,6 @@
 Home Assistant integration to disable selected components from default_config.
 See popular feature request at https://community.home-assistant.io/t/why-the-heck-is-default-config-so-difficult-to-customize/220112
 
-Note: After a Home Assistant update this integration will re-disable selected components and automatically restart Home Assistant.
-
 # Installation
 
 ## HACS
