@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from contextlib import suppress
 import logging
 import os
@@ -128,14 +129,17 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     _LOGGER.debug("Getting default_config dependencies")
     components = await hass.async_add_executor_job(get_default_config_components)
     _LOGGER.debug("Got default_config dependencies: %s", components)
-    disabled_components = []
+    disabled_components: set[str] = set()
     for entry in hass.config_entries.async_entries(DOMAIN):
-        disabled_components.extend(entry.options.get(CONF_COMPONENTS_TO_DISABLE, []))
+        disabled_components.update(entry.options.get(CONF_COMPONENTS_TO_DISABLE, []))
     _LOGGER.debug("Setting up dependencies except: %s", disabled_components)
-    for component in components:
-        if component in disabled_components:
-            continue
-        await async_setup_component(hass, component, config)
+    await asyncio.gather(
+        *(
+            async_setup_component(hass, component, config)
+            for component in components
+            if component not in disabled_components
+        )
+    )
     _LOGGER.debug("Setup of default_config dependencies complete")
 
     # Setup any components that are conditionally loaded by default_config
