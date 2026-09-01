@@ -1,9 +1,7 @@
 {
   "domain": "default_config_disabler",
   "name": "Default Config Disabler",
-  "codeowners": [
-    "@tronikos"
-  ],
+  "codeowners": ["@tronikos"],
   "config_flow": true,
   "dependencies": ["recorder"],
   "documentation": "https://github.com/tronikos/default_config_disabler",

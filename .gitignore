@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+.venv-test/
+venv/
+ENV/
+env/
+bin/
+lib/
+include/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Local environment variables (Keep these secret!)
+.env
+.flaskenv
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/

@@ -1,12 +1,25 @@
 {
   "config": {
+    "abort": {
+      "single_instance_allowed": "Already configured. Only a single configuration possible."
+    },
     "step": {
       "user": {
         "description": "Do you want to start setup?"
       }
-    },
-    "abort": {
-      "single_instance_allowed": "Already configured. Only a single configuration possible."
+    }
+  },
+  "issues": {
+    "restart_required": {
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "The Default Config Disabler has made changes to your Home Assistant configuration that require a restart.\n\nSelect submit to restart Home Assistant now.",
+            "title": "Restart Home Assistant"
+          }
+        }
+      },
+      "title": "Home Assistant Restart Required"
     }
   },
   "options": {
@@ -14,19 +27,6 @@
       "init": {
         "data": {
           "components_to_disable": "default_config components to disable"
-        }
-      }
-    }
-  },
-  "issues": {
-    "restart_required": {
-      "title": "Home Assistant Restart Required",
-      "fix_flow": {
-        "step": {
-          "confirm": {
-            "title": "Restart Home Assistant",
-            "description": "The Default Config Disabler has made changes to your Home Assistant configuration that require a restart.\n\nSelect submit to restart Home Assistant now."
-          }
         }
       }
     }

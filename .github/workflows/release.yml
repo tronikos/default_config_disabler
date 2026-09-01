@@ -1,6 +1,6 @@
----
 name: "Release"
 
+# yamllint disable-line rule:truthy
 on:
   release:
     types:
@@ -10,9 +10,11 @@ jobs:
   release:
     name: "Release default_config_disabler"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: "⬇️ Checkout the repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: "🔢 Adjust version number"
         shell: bash
@@ -29,6 +31,6 @@ jobs:
           cd "${{ github.workspace }}/custom_components/default_config_disabler"
           zip default_config_disabler.zip -r ./
       - name: "⬆️ Upload zip to release"
-        uses: softprops/action-gh-release@v0.1.15
+        uses: softprops/action-gh-release@v3
         with:
           files: ${{ github.workspace }}/custom_components/default_config_disabler/default_config_disabler.zip
