@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 import logging
+import os
 import re
+import shutil
 
 import homeassistant.components.default_config as ha_default_config
 from homeassistant.config import YAML_CONFIG_FILE
@@ -45,6 +48,24 @@ def _delete_restart_issue(hass: HomeAssistant) -> None:
     ir.async_delete_issue(hass, DOMAIN, _ISSUE_RESTART_REQUIRED)
 
 
+def _write_atomically(path: str, content: str) -> None:
+    """Write content to path, so a failed write cannot truncate the file."""
+    tmp_path = f"{path}.default_config_disabler.tmp"
+    try:
+        with open(tmp_path, "w", encoding="utf-8", newline="") as tmp_file:
+            tmp_file.write(content)
+            tmp_file.flush()
+            os.fsync(tmp_file.fileno())
+        # Keep the permissions of the file that is about to be replaced.
+        with suppress(OSError):
+            shutil.copymode(path, tmp_path)
+        os.replace(tmp_path, path)
+    except OSError:
+        with suppress(OSError):
+            os.remove(tmp_path)
+        raise
+
+
 def _update_default_config(hass: HomeAssistant, disable: bool) -> bool:
     """Comment or uncomment default_config in configuration.yaml.
 
@@ -54,16 +75,23 @@ def _update_default_config(hass: HomeAssistant, disable: bool) -> bool:
     pattern = _ENABLED_PATTERN if disable else _DISABLED_PATTERN
     replacement = r"# \1\2" if disable else r"\1\2"
 
-    # newline="" keeps the line endings of the file as they are.
-    with open(config_path, encoding="utf-8", newline="") as config_file:
-        config_raw = config_file.read()
+    try:
+        # newline="" keeps the line endings of the file as they are.
+        with open(config_path, encoding="utf-8", newline="") as config_file:
+            config_raw = config_file.read()
+    except OSError:
+        _LOGGER.exception("Error reading %s", config_path)
+        return False
 
     config_raw, count = pattern.subn(replacement, config_raw)
     if not count:
         return False
 
-    with open(config_path, "w", encoding="utf-8", newline="") as config_file:
-        config_file.write(config_raw)
+    try:
+        _write_atomically(config_path, config_raw)
+    except OSError:
+        _LOGGER.exception("Error writing %s", config_path)
+        return False
 
     return True
 
