@@ -159,8 +159,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     _LOGGER.debug("Unloading default_config_disabler entry")
-    await _async_enable_default_config(hass)
+    # Restore default_config only when the user disabled the entry, since the
+    # integration is not set up at all while it is disabled. A reload sets the
+    # entry up again right away and a removal goes through async_remove_entry.
+    if entry.disabled_by is not None:
+        await _async_enable_default_config(hass)
     return True
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Restore default_config when the entry is removed."""
+    _LOGGER.debug("Removing default_config_disabler entry")
+    await _async_enable_default_config(hass)
 
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
