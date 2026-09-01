@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 
 import homeassistant.components.default_config as ha_default_config
 from homeassistant.config import YAML_CONFIG_FILE
@@ -21,14 +22,12 @@ _LOGGER = logging.getLogger(__name__)
 _RESTART_LOG_MESSAGE = "Restart Home Assistant to apply changes"
 _ISSUE_RESTART_REQUIRED = "restart_required"
 
-
-_DEFAULT_CONFIG_ENABLED = """
-default_config:
-"""
-
-_DEFAULT_CONFIG_DISABLED = """
-# default_config:
-"""
+# Matches a top level "default_config:" line. The trailing whitespace, inline
+# comment and line ending of the original file are captured so that they can be
+# put back untouched.
+_LINE_END = r"([ \t]*(?:#[^\r\n]*)?\r?)$"
+_ENABLED_PATTERN = re.compile(r"^(default_config:)" + _LINE_END, re.MULTILINE)
+_DISABLED_PATTERN = re.compile(r"^#[ \t]*(default_config:)" + _LINE_END, re.MULTILINE)
 
 
 def _create_restart_issue(hass: HomeAssistant) -> None:
@@ -47,21 +46,26 @@ def _delete_restart_issue(hass: HomeAssistant) -> None:
 
 
 def _update_default_config(hass: HomeAssistant, disable: bool) -> bool:
-    """Update configuration.yaml to enable/disable default_config."""
-    updated = False
+    """Comment or uncomment default_config in configuration.yaml.
 
+    Returns True if configuration.yaml was changed.
+    """
     config_path = hass.config.path(YAML_CONFIG_FILE)
-    with open(config_path, encoding="utf-8") as config_file:
-        config_raw = config_file.read()
-    old = _DEFAULT_CONFIG_ENABLED if disable else _DEFAULT_CONFIG_DISABLED
-    new = _DEFAULT_CONFIG_DISABLED if disable else _DEFAULT_CONFIG_ENABLED
-    if old in config_raw:
-        config_raw = config_raw.replace(old, new)
-        with open(config_path, "w", encoding="utf-8") as config_file:
-            config_file.write(config_raw)
-        updated = True
+    pattern = _ENABLED_PATTERN if disable else _DISABLED_PATTERN
+    replacement = r"# \1\2" if disable else r"\1\2"
 
-    return updated
+    # newline="" keeps the line endings of the file as they are.
+    with open(config_path, encoding="utf-8", newline="") as config_file:
+        config_raw = config_file.read()
+
+    config_raw, count = pattern.subn(replacement, config_raw)
+    if not count:
+        return False
+
+    with open(config_path, "w", encoding="utf-8", newline="") as config_file:
+        config_file.write(config_raw)
+
+    return True
 
 
 async def _async_disable_default_config(hass: HomeAssistant) -> None:
