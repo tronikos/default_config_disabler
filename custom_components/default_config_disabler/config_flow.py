@@ -12,7 +12,7 @@ from homeassistant.core import callback
 from homeassistant.helpers import config_validation as cv
 
 from .const import CONF_COMPONENTS_TO_DISABLE, DOMAIN, NAME
-from .helpers import get_default_config_components
+from .helpers import async_get_default_config_components
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -54,9 +54,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        components = await self.hass.async_add_executor_job(
-            get_default_config_components
-        )
+        components = await async_get_default_config_components(self.hass)
         selected_components = self.config_entry.options.get(
             CONF_COMPONENTS_TO_DISABLE, []
         )

@@ -5,4 +5,6 @@ from typing import Final
 DOMAIN: Final = "default_config_disabler"
 NAME: Final = "Default Config Disabler"
 
+DEFAULT_CONFIG_DOMAIN: Final = "default_config"
+
 CONF_COMPONENTS_TO_DISABLE: Final = "components_to_disable"

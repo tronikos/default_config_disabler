@@ -17,8 +17,8 @@ from homeassistant.helpers import config_validation as cv, issue_registry as ir
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.setup import async_setup_component
 
-from .const import CONF_COMPONENTS_TO_DISABLE, DOMAIN
-from .helpers import get_default_config_components
+from .const import CONF_COMPONENTS_TO_DISABLE, DEFAULT_CONFIG_DOMAIN, DOMAIN
+from .helpers import async_get_default_config_components
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -120,14 +120,14 @@ async def _async_enable_default_config(hass: HomeAssistant) -> None:
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the integration."""
     _LOGGER.debug("Setting up default_config_disabler")
-    if "default_config" in config:
+    if DEFAULT_CONFIG_DOMAIN in config:
         await _async_disable_default_config(hass)
         return True
 
     _delete_restart_issue(hass)
     # Setup the default_config dependencies in its manifest except those that are disabled
     _LOGGER.debug("Getting default_config dependencies")
-    components = await hass.async_add_executor_job(get_default_config_components)
+    components = await async_get_default_config_components(hass)
     _LOGGER.debug("Got default_config dependencies: %s", components)
     disabled_components: set[str] = set()
     for entry in hass.config_entries.async_entries(DOMAIN):

@@ -2,18 +2,13 @@
 
 from __future__ import annotations
 
-import json
-import os
+from homeassistant.core import HomeAssistant
+from homeassistant.loader import async_get_integration
 
-import homeassistant.components as ha_components
+from .const import DEFAULT_CONFIG_DOMAIN
 
 
-def get_default_config_components() -> list[str]:
-    """Return a list of components in the default_config."""
-    default_config_manifest_path = os.path.join(
-        os.path.dirname(os.path.realpath(ha_components.__file__)),
-        "default_config",
-        "manifest.json",
-    )
-    with open(default_config_manifest_path, encoding="utf-8") as f:
-        return json.load(f).get("dependencies", [])
+async def async_get_default_config_components(hass: HomeAssistant) -> list[str]:
+    """Return the list of components default_config depends on."""
+    integration = await async_get_integration(hass, DEFAULT_CONFIG_DOMAIN)
+    return list(integration.dependencies)
