@@ -25,3 +25,19 @@ See popular feature request at https://community.home-assistant.io/t/why-the-hec
 1. Go to [Settings / Devices & Services / Integrations](http://homeassistant.local:8123/config/integrations)
 2. Select "Default Config Disabler" and click on "Configure"
 3. Select the default_config components you want to disable
+
+# FAQ
+
+## A component I disabled is still running. Is this broken?
+
+No. This integration only stops `default_config` from setting up the components
+you selected. Any other core or custom integration that lists the component as
+a dependency will still cause Home Assistant to set it up. For example, ESPHome
+depends on `assist_pipeline` (which in turn depends on `conversation`), so
+Assist stays available on systems with ESPHome even when both are disabled here.
+
+To find out what is loading a component, look at the
+`Domains to be set up: ... Dependencies: ...` line in the startup log: if the
+component is listed under `Dependencies`, something else pulls it in. As a
+quick check for DHCP, opening https://my.home-assistant.io/redirect/config_dhcp/
+shows an empty page when `dhcp` is not loaded.
