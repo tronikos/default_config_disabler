@@ -2,6 +2,17 @@
 # only make sense inside the core repository (hassfest, gen_requirements_all,
 # zizmor, python-typing-update). Keep the revisions in sync with
 # https://github.com/home-assistant/core/blob/dev/.pre-commit-config.yaml
+
+# mypy and pylint need Home Assistant (and core's pylint plugins) importable, so
+# they run through script/run-in-env.sh against the .venv-test virtualenv that
+# requirements_test.txt creates. pre-commit.ci has no such virtualenv and cannot
+# install one, so skip them there; the "Lint and test" workflow still runs the
+# full hook set, these two included.
+ci:
+  skip:
+    - mypy
+    - pylint
+
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.16.4
