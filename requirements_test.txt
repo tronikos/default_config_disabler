@@ -11,4 +11,4 @@ prek==0.2.28
 pylint==4.0.7
 pylint-per-file-ignores==3.2.1
 # Home Assistant's pylint plugins are not published to PyPI; install them from core.
-pylint-home-assistant @ git+https://github.com/home-assistant/core.git@dev#subdirectory=pylint/plugins
+pylint-home-assistant @ git+https://github.com/home-assistant/core.git@dev#subdirectory=packages/pylint-home-assistant
