@@ -118,7 +118,10 @@ async def _async_enable_default_config(hass: HomeAssistant) -> None:
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the integration."""
     _LOGGER.debug("Setting up default_config_disabler")
-    if DEFAULT_CONFIG_DOMAIN in config:
+    if (
+        DEFAULT_CONFIG_DOMAIN in config
+        or DEFAULT_CONFIG_DOMAIN in hass.config.components
+    ):
         await _async_disable_default_config(hass)
         return True
 

@@ -234,6 +234,23 @@ async def test_yaml_default_config_disables_and_defers(
     mock_setup_components.assert_not_called()
 
 
+async def test_loaded_default_config_disables_and_defers(
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    config_yaml: Path,
+    issue_registry: ir.IssueRegistry,
+    mock_setup_components: AsyncMock,
+) -> None:
+    """Adding the entry while default_config is loaded does not rerun its setup."""
+    hass.config.components.add("default_config")
+
+    await setup_integration(hass, mock_config_entry)
+
+    assert config_yaml.read_text(encoding="utf-8") == DISABLED_YAML
+    assert _issue(issue_registry) is not None
+    mock_setup_components.assert_not_called()
+
+
 async def test_components_are_set_up_except_the_disabled_ones(
     hass: HomeAssistant,
     mock_config_entry: MockConfigEntry,
