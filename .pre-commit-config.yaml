@@ -9,6 +9,7 @@
 # install one, so skip them there; the "Lint and test" workflow still runs the
 # full hook set, these two included.
 ci:
+  autoupdate_schedule: quarterly
   skip:
     - mypy
     - pylint
